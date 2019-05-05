@@ -83,11 +83,11 @@ $EndComp
 Text Label 10250 5350 2    40   ~ 0
 SGPIO0
 Text Label 9350 5350 0    40   ~ 0
-P4_9
+SGPIO14
 Text Label 10250 5450 2    40   ~ 0
 SGPIO1
 Text Label 9350 5450 0    40   ~ 0
-P4_10
+SGPIO15
 Text Label 10250 5550 2    40   ~ 0
 P5_0
 Text Label 9350 5550 0    40   ~ 0
@@ -221,19 +221,19 @@ P4_0
 Text Label 9300 3100 0    40   ~ 0
 ADC0_0
 Text Label 9350 3300 0    40   ~ 0
-P4_3
+SGPIO9
 Text Label 10250 3200 2    40   ~ 0
-P4_2
+SGPIO8
 Text Label 9350 3200 0    40   ~ 0
-P4_4
+SGPIO10
 Text Label 10250 3100 2    40   ~ 0
-P4_5
+SGPIO11
 Text Label 10250 3300 2    40   ~ 0
-P4_6
+SGPIO12
 Text Label 9350 3400 0    40   ~ 0
 P4_7
 Text Label 9350 3000 0    40   ~ 0
-P4_8
+SGPIO13
 Text Label 9250 3700 0    40   ~ 0
 WAKEUP0
 Text Label 10250 3500 2    40   ~ 0
@@ -727,22 +727,18 @@ SGPIO14
 Text Label 6050 5350 0    50   ~ 0
 SGPIO15
 $Comp
-L Connector_Generic:Conn_01x02 J?
+L Connector_Generic:Conn_01x02 J3
 U 1 1 5CD3D07A
-P 4400 4850
-F 0 "J?" H 4320 4525 50  0000 C CNN
-F 1 "Conn_01x02" H 4320 4616 50  0000 C CNN
-F 2 "" H 4400 4850 50  0001 C CNN
-F 3 "~" H 4400 4850 50  0001 C CNN
-	1    4400 4850
+P 2600 4850
+F 0 "J3" H 2520 4525 50  0000 C CNN
+F 1 "Conn_01x02" H 2520 4616 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 2600 4850 50  0001 C CNN
+F 3 "~" H 2600 4850 50  0001 C CNN
+	1    2600 4850
 	-1   0    0    1   
 $EndComp
-Wire Wire Line
-	4600 4750 4850 4750
-Wire Wire Line
-	4850 4850 4600 4850
 Text Notes 11250 4200 0    200  ~ 0
-TODO:\nAdd level translator\nPick pins for SGPIO[8..15]\nPick XTAL & add
+TODO:\nAdd level translator\nPick XTAL & add\nAdd RS232 stuff
 Wire Wire Line
 	6050 5950 6050 6850
 Wire Wire Line
@@ -751,4 +747,114 @@ Wire Wire Line
 	4650 6850 4650 5350
 Wire Wire Line
 	4650 5350 4850 5350
+Text Label 4850 4750 2    50   ~ 0
+SERIN+
+Text Label 4850 4850 2    50   ~ 0
+SERIN-
+$Comp
+L Device:R R1
+U 1 1 5CD51D8E
+P 3200 4550
+F 0 "R1" H 3270 4596 50  0000 L CNN
+F 1 "120R" H 3270 4505 50  0000 L CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 3130 4550 50  0001 C CNN
+F 3 "~" H 3200 4550 50  0001 C CNN
+	1    3200 4550
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R2
+U 1 1 5CD51DD4
+P 3200 5050
+F 0 "R2" H 3270 5096 50  0000 L CNN
+F 1 "330R" H 3270 5005 50  0000 L CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 3130 5050 50  0001 C CNN
+F 3 "~" H 3200 5050 50  0001 C CNN
+	1    3200 5050
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR0103
+U 1 1 5CD51E12
+P 3200 4400
+F 0 "#PWR0103" H 3200 4250 50  0001 C CNN
+F 1 "+5V" H 3215 4573 50  0000 C CNN
+F 2 "" H 3200 4400 50  0001 C CNN
+F 3 "" H 3200 4400 50  0001 C CNN
+	1    3200 4400
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR0104
+U 1 1 5CD51E33
+P 3200 5200
+F 0 "#PWR0104" H 3200 4950 50  0001 C CNN
+F 1 "GND" H 3205 5027 50  0000 C CNN
+F 2 "" H 3200 5200 50  0001 C CNN
+F 3 "" H 3200 5200 50  0001 C CNN
+	1    3200 5200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R3
+U 1 1 5CD51F2F
+P 3600 4550
+F 0 "R3" H 3670 4596 50  0000 L CNN
+F 1 "120R" H 3670 4505 50  0000 L CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 3530 4550 50  0001 C CNN
+F 3 "~" H 3600 4550 50  0001 C CNN
+	1    3600 4550
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R4
+U 1 1 5CD51F35
+P 3600 5050
+F 0 "R4" H 3670 5096 50  0000 L CNN
+F 1 "330R" H 3670 5005 50  0000 L CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 3530 5050 50  0001 C CNN
+F 3 "~" H 3600 5050 50  0001 C CNN
+	1    3600 5050
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR0105
+U 1 1 5CD51F3B
+P 3600 4400
+F 0 "#PWR0105" H 3600 4250 50  0001 C CNN
+F 1 "+5V" H 3615 4573 50  0000 C CNN
+F 2 "" H 3600 4400 50  0001 C CNN
+F 3 "" H 3600 4400 50  0001 C CNN
+	1    3600 4400
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR0106
+U 1 1 5CD51F41
+P 3600 5200
+F 0 "#PWR0106" H 3600 4950 50  0001 C CNN
+F 1 "GND" H 3605 5027 50  0000 C CNN
+F 2 "" H 3600 5200 50  0001 C CNN
+F 3 "" H 3600 5200 50  0001 C CNN
+	1    3600 5200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2800 4750 3200 4750
+Wire Wire Line
+	3200 4750 3200 4700
+Wire Wire Line
+	2800 4850 3600 4850
+Wire Wire Line
+	3200 4750 3200 4900
+Connection ~ 3200 4750
+Wire Wire Line
+	3600 4850 3600 4700
+Connection ~ 3600 4850
+Wire Wire Line
+	3600 4900 3600 4850
+Text Label 2800 4750 0    50   ~ 0
+SERIN+
+Text Label 2800 4850 0    50   ~ 0
+SERIN-
 $EndSCHEMATC
