@@ -4,10 +4,10 @@ EELAYER END
 $Descr USLedger 17000 11000
 encoding utf-8
 Sheet 1 1
-Title "GreatFET Neighbor Template"
-Date "2015-09-24"
+Title "Scorzonera"
+Date "2019-05-05"
 Rev ""
-Comp "Copyright 2015 Great Scott Gadgets"
+Comp "Copyright 2015 Great Scott Gadgets, 2019 Mike Walters"
 Comment1 "License: BSD-3-Clause"
 Comment2 ""
 Comment3 ""
