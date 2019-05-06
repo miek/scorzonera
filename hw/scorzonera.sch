@@ -63,8 +63,6 @@ F 3 "" H 10250 5250 60  0000 C CNN
 	1    10250 5250
 	0    1    1    0   
 $EndComp
-Text Label 10250 2900 2    40   ~ 0
-VBUS
 $Comp
 L Connector_Generic:Conn_02x20_Odd_Even J1
 U 1 1 55FB1D52
@@ -301,7 +299,7 @@ Wire Wire Line
 Wire Wire Line
 	9350 5350 9550 5350
 Wire Wire Line
-	9350 2900 9550 2900
+	9350 2900 9450 2900
 Wire Wire Line
 	9350 5450 9550 5450
 Wire Wire Line
@@ -648,21 +646,21 @@ F 3 "" H 5450 5450 50  0001 C CNN
 	1    5450 5050
 	1    0    0    -1  
 $EndComp
-Text Label 6050 4250 0    50   ~ 0
+Text Label 7350 4250 0    50   ~ 0
 SGPIO0
-Text Label 6050 4350 0    50   ~ 0
+Text Label 7350 4350 0    50   ~ 0
 SGPIO1
-Text Label 6050 4450 0    50   ~ 0
+Text Label 7350 4450 0    50   ~ 0
 SGPIO2
-Text Label 6050 4550 0    50   ~ 0
+Text Label 7350 4550 0    50   ~ 0
 SGPIO3
-Text Label 6050 4650 0    50   ~ 0
+Text Label 7350 4650 0    50   ~ 0
 SGPIO4
-Text Label 6050 4750 0    50   ~ 0
+Text Label 7350 4750 0    50   ~ 0
 SGPIO5
-Text Label 6050 4850 0    50   ~ 0
+Text Label 7350 4850 0    50   ~ 0
 SGPIO6
-Text Label 6050 4950 0    50   ~ 0
+Text Label 7350 4950 0    50   ~ 0
 SGPIO7
 NoConn ~ 4850 5550
 $Comp
@@ -710,21 +708,21 @@ Connection ~ 5500 3850
 Wire Wire Line
 	5500 3850 5550 3850
 NoConn ~ 6050 5850
-Text Label 6050 5650 0    50   ~ 0
+Text Label 7350 5550 0    50   ~ 0
 SGPIO8
-Text Label 6050 5750 0    50   ~ 0
+Text Label 7350 5650 0    50   ~ 0
 SGPIO9
-Text Label 6050 5950 0    50   ~ 0
+Text Label 7350 5750 0    50   ~ 0
 SGPIO10
-Text Label 6050 5550 0    50   ~ 0
+Text Label 7350 5450 0    50   ~ 0
 SGPIO11
-Text Label 6050 5050 0    50   ~ 0
+Text Label 7350 5350 0    50   ~ 0
 SGPIO12
-Text Label 6050 5150 0    50   ~ 0
+Text Label 7350 5250 0    50   ~ 0
 SGPIO13
-Text Label 6050 5250 0    50   ~ 0
+Text Label 7350 5150 0    50   ~ 0
 SGPIO14
-Text Label 6050 5350 0    50   ~ 0
+Text Label 7350 5050 0    50   ~ 0
 SGPIO15
 $Comp
 L Connector_Generic:Conn_01x02 J3
@@ -738,15 +736,7 @@ F 3 "~" H 2600 4850 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 Text Notes 11250 4200 0    200  ~ 0
-TODO:\nAdd level translator\nPick XTAL & add\nAdd RS232 stuff
-Wire Wire Line
-	6050 5950 6050 6850
-Wire Wire Line
-	6050 6850 4650 6850
-Wire Wire Line
-	4650 6850 4650 5350
-Wire Wire Line
-	4650 5350 4850 5350
+TODO:\nPick XTAL & add\nAdd RS232 stuff
 Text Label 4850 4750 2    50   ~ 0
 SERIN+
 Text Label 4850 4850 2    50   ~ 0
@@ -857,4 +847,180 @@ Text Label 2800 4750 0    50   ~ 0
 SERIN+
 Text Label 2800 4850 0    50   ~ 0
 SERIN-
+$Comp
+L Interface:74ALVC164245 U2
+U 1 1 5CD8BD41
+P 6950 4950
+F 0 "U2" H 6950 6215 50  0000 C CNN
+F 1 "74ALVC164245" H 6950 6124 50  0000 C CNN
+F 2 "Package_SO:TSSOP-48_6.1x12.5mm_P0.5mm" H 6950 4950 50  0001 C CNN
+F 3 "" H 6950 4950 50  0001 C CNN
+	1    6950 4950
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6050 4250 6550 4250
+Wire Wire Line
+	6550 4350 6050 4350
+Wire Wire Line
+	6050 4450 6550 4450
+Wire Wire Line
+	6550 4550 6050 4550
+Wire Wire Line
+	6050 4650 6550 4650
+Wire Wire Line
+	6550 4750 6050 4750
+Wire Wire Line
+	6050 4850 6550 4850
+Wire Wire Line
+	6550 4950 6050 4950
+Wire Wire Line
+	6050 5050 6550 5050
+Wire Wire Line
+	6550 5150 6050 5150
+Wire Wire Line
+	6050 5250 6550 5250
+Wire Wire Line
+	6550 5350 6050 5350
+Wire Wire Line
+	6050 5550 6100 5550
+Wire Wire Line
+	6100 5550 6100 5450
+Wire Wire Line
+	6100 5450 6550 5450
+Wire Wire Line
+	6050 5750 6200 5750
+Wire Wire Line
+	6050 5950 6250 5950
+Wire Wire Line
+	6250 5950 6250 5750
+Wire Wire Line
+	6250 5750 6550 5750
+Text Label 4850 5350 2    50   ~ 0
+CLK
+$Comp
+L power:GND #PWR0107
+U 1 1 5CE07E1C
+P 4600 5650
+F 0 "#PWR0107" H 4600 5400 50  0001 C CNN
+F 1 "GND" H 4605 5477 50  0000 C CNN
+F 2 "" H 4600 5650 50  0001 C CNN
+F 3 "" H 4600 5650 50  0001 C CNN
+	1    4600 5650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4850 5450 4600 5450
+Wire Wire Line
+	4600 5450 4600 5650
+Text Label 10050 2900 0    40   ~ 0
+VBUS
+$Comp
+L power:+5V #PWR0108
+U 1 1 5CE31150
+P 10250 2900
+F 0 "#PWR0108" H 10250 2750 50  0001 C CNN
+F 1 "+5V" V 10265 3028 50  0000 L CNN
+F 2 "" H 10250 2900 50  0001 C CNN
+F 3 "" H 10250 2900 50  0001 C CNN
+	1    10250 2900
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	10250 2900 10050 2900
+$Comp
+L power:+5V #PWR0109
+U 1 1 5CE394DC
+P 6200 3850
+F 0 "#PWR0109" H 6200 3700 50  0001 C CNN
+F 1 "+5V" H 6215 4023 50  0000 C CNN
+F 2 "" H 6200 3850 50  0001 C CNN
+F 3 "" H 6200 3850 50  0001 C CNN
+	1    6200 3850
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6200 3850 6200 3950
+Wire Wire Line
+	6200 3950 6550 3950
+$Comp
+L power:VCC #PWR0110
+U 1 1 5CE41ABC
+P 7400 3850
+F 0 "#PWR0110" H 7400 3700 50  0001 C CNN
+F 1 "VCC" H 7417 4023 50  0000 C CNN
+F 2 "" H 7400 3850 50  0001 C CNN
+F 3 "" H 7400 3850 50  0001 C CNN
+	1    7400 3850
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7400 3850 7400 3950
+Wire Wire Line
+	7400 3950 7350 3950
+$Comp
+L power:GND #PWR0111
+U 1 1 5CE52F19
+P 6750 6150
+F 0 "#PWR0111" H 6750 5900 50  0001 C CNN
+F 1 "GND" H 6755 5977 50  0000 C CNN
+F 2 "" H 6750 6150 50  0001 C CNN
+F 3 "" H 6750 6150 50  0001 C CNN
+	1    6750 6150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6950 6050 6750 6150
+$Comp
+L power:PWR_FLAG #FLG0101
+U 1 1 5CE5BDA6
+P 9450 2900
+F 0 "#FLG0101" H 9450 2975 50  0001 C CNN
+F 1 "PWR_FLAG" H 9450 3074 50  0000 C CNN
+F 2 "" H 9450 2900 50  0001 C CNN
+F 3 "~" H 9450 2900 50  0001 C CNN
+	1    9450 2900
+	1    0    0    -1  
+$EndComp
+Connection ~ 9450 2900
+Wire Wire Line
+	9450 2900 9550 2900
+Text Label 6050 4250 0    50   ~ 0
+DO0
+Text Label 6050 4350 0    50   ~ 0
+DO1
+Text Label 6050 4450 0    50   ~ 0
+DO2
+Text Label 6050 4550 0    50   ~ 0
+DO3
+Text Label 6050 4650 0    50   ~ 0
+DO4
+Text Label 6050 4750 0    50   ~ 0
+DO5
+Text Label 6050 4850 0    50   ~ 0
+DO6
+Text Label 6050 4950 0    50   ~ 0
+DO7
+Text Label 6050 5050 0    50   ~ 0
+CO3
+Text Label 6050 5150 0    50   ~ 0
+CO2
+Text Label 6050 5250 0    50   ~ 0
+CO1
+Text Label 6050 5350 0    50   ~ 0
+CO0
+Text Label 6100 5450 0    50   ~ 0
+VLTN
+Text Label 6250 5650 0    50   ~ 0
+DSTRB
+Text Label 6200 5550 0    50   ~ 0
+CSTRB
+Text Label 6250 5750 0    50   ~ 0
+CLK
+Wire Wire Line
+	6050 5650 6550 5650
+Wire Wire Line
+	6200 5750 6200 5550
+Wire Wire Line
+	6200 5550 6550 5550
 $EndSCHEMATC
