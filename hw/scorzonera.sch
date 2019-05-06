@@ -204,11 +204,11 @@ P3_2
 Text Label 10250 4400 2    40   ~ 0
 P3_3
 Text Label 10250 4200 2    40   ~ 0
-P3_4
+U1_TXD
 Text Label 9350 3900 0    40   ~ 0
 PF_4
 Text Label 9350 4700 0    40   ~ 0
-P3_5
+U1_RXD
 Text Label 10250 4700 2    40   ~ 0
 P3_6
 Text Label 10250 4300 2    40   ~ 0
@@ -737,7 +737,7 @@ F 3 "~" H 2600 4850 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 Text Notes 11250 4200 0    200  ~ 0
-TODO:\nSprinkle caps everywhere\nPick XTAL & add\nAdd RS232 stuff
+TODO:\nSprinkle caps everywhere\nPick XTAL & add
 Text Label 4850 4750 2    50   ~ 0
 SERIN+
 Text Label 4850 4850 2    50   ~ 0
@@ -1024,4 +1024,64 @@ Wire Wire Line
 	6200 5750 6200 5550
 Wire Wire Line
 	6200 5550 6550 5550
+$Comp
+L Interface_UART:MAX3232 U3
+U 1 1 5CD0B377
+P 6950 8100
+F 0 "U3" H 6500 9350 50  0000 C CNN
+F 1 "MAX3232" H 6600 9250 50  0000 C CNN
+F 2 "Package_SO:TSSOP-16_4.4x5mm_P0.65mm" H 7000 7050 50  0001 L CNN
+F 3 "https://datasheets.maximintegrated.com/en/ds/MAX3222-MAX3241.pdf" H 6950 8200 50  0001 C CNN
+	1    6950 8100
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:VCC #PWR01
+U 1 1 5CD0B752
+P 6950 6900
+F 0 "#PWR01" H 6950 6750 50  0001 C CNN
+F 1 "VCC" H 6950 7050 50  0000 C CNN
+F 2 "" H 6950 6900 60  0000 C CNN
+F 3 "" H 6950 6900 60  0000 C CNN
+	1    6950 6900
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR02
+U 1 1 5CD0BBF3
+P 6950 9300
+F 0 "#PWR02" H 6950 9050 50  0001 C CNN
+F 1 "GND" H 6950 9150 50  0000 C CNN
+F 2 "" H 6950 9300 60  0000 C CNN
+F 3 "" H 6950 9300 60  0000 C CNN
+	1    6950 9300
+	1    0    0    -1  
+$EndComp
+Text Label 6150 8600 2    40   ~ 0
+U1_RXD
+Text Label 6150 8200 2    40   ~ 0
+U1_TXD
+$Comp
+L Connector_Generic:Conn_01x02 J4
+U 1 1 5CD0C913
+P 8900 8350
+F 0 "J4" H 8820 8025 50  0000 C CNN
+F 1 "Conn_01x02" H 8820 8116 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 8900 8350 50  0001 C CNN
+F 3 "~" H 8900 8350 50  0001 C CNN
+	1    8900 8350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7750 8200 8150 8200
+Wire Wire Line
+	7750 8600 8150 8600
+Wire Wire Line
+	8150 8200 8150 8350
+Wire Wire Line
+	8150 8350 8700 8350
+Wire Wire Line
+	8150 8600 8150 8450
+Wire Wire Line
+	8150 8450 8700 8450
 $EndSCHEMATC
