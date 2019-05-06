@@ -1,4 +1,5 @@
 EESchema Schematic File Version 4
+LIBS:scorzonera-cache
 EELAYER 26 0
 EELAYER END
 $Descr USLedger 17000 11000
@@ -736,7 +737,7 @@ F 3 "~" H 2600 4850 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 Text Notes 11250 4200 0    200  ~ 0
-TODO:\nPick XTAL & add\nAdd RS232 stuff
+TODO:\nSprinkle caps everywhere\nPick XTAL & add\nAdd RS232 stuff
 Text Label 4850 4750 2    50   ~ 0
 SERIN+
 Text Label 4850 4850 2    50   ~ 0
