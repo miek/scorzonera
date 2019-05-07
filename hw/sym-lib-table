@@ -1,0 +1,5 @@
+(sym_lib_table
+  (lib (name gsg-symbols)(type Legacy)(uri /home/mike/projects/scorzonera/gsg-kicad-lib/gsg-symbols.lib)(options "")(descr ""))
+  (lib (name scorzonera)(type Legacy)(uri ${KIPRJMOD}/scorzonera.lib)(options "")(descr ""))
+  (lib (name scorzonera-rescue)(type Legacy)(uri ${KIPRJMOD}/scorzonera-rescue.lib)(options "")(descr ""))
+)
