@@ -5,3 +5,5 @@ authors = ["Mike Walters <mike@flomp.net>"]
 edition = "2018"
 
 [dependencies]
+byteorder = "*"
+libusb = { git = "https://github.com/kevinmehall/libusb-rs/", branch = "async2" }
