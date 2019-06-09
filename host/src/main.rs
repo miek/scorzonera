@@ -32,18 +32,16 @@ fn main() {
     let context = libusb::Context::new().unwrap();
 
     let greatfets: Vec<_> = context.devices().unwrap().iter().filter(greatfet::filter).collect();
-    let gf = GreatFET::new(&greatfets[0]).unwrap();
+    if greatfets.len() == 0 {
+        println!("GreatFET not found");
+        return;
+    }
+    let gf = GreatFET::new(&greatfets[0]).expect("Error opening GreatFET");
 
-    let mut buffers = vec![];
-
+    let mut buffers = allocate_buffers(GREATFET_TRANSFER_POOL_SIZE);
     let mut async_group = libusb::AsyncGroup::new(&context);
     let timeout = Duration::from_secs(1);
 
-    for _ in 0..GREATFET_TRANSFER_POOL_SIZE {
-        let mut buf = vec![0u8; GREATFET_TRANSFER_BUFFER_SIZE];
-        let mut buf = buf.into_boxed_slice();
-        buffers.push(buf);
-    }
     for buf in &mut buffers {
         async_group.submit(libusb::Transfer::bulk(&gf.handle, 0x81, buf, timeout)).unwrap();
     }
@@ -117,6 +115,10 @@ fn main() {
             sync = SyncState::None;
         }
     }
+}
+
+fn allocate_buffers(count: usize) -> Vec<[u8; GREATFET_TRANSFER_BUFFER_SIZE]> {
+    (0..count).map(|_| [0u8; GREATFET_TRANSFER_BUFFER_SIZE]).collect()
 }
 
 #[derive(PartialEq)]
