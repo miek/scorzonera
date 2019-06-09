@@ -1,18 +1,18 @@
 extern crate sdl2;
 
+mod frame_builder;
 mod greatfet;
 
+use frame_builder::FrameBuilder;
 use greatfet::{GreatFET, GREATFET_TRANSFER_BUFFER_SIZE, GREATFET_TRANSFER_POOL_SIZE};
-use sdl2::pixels::{Color, PixelFormatEnum};
+use sdl2::pixels::PixelFormatEnum;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use std::fs::File;
-use std::io::prelude::*;
-use std::time::Duration;
-use std::collections::VecDeque;
+use std::cmp::min;
+use std::time::{Duration, Instant};
 
 const WIDTH: usize = 327;
-const HEIGHT: usize = 245;
+const HEIGHT: usize = 240;
 
 fn main() {
     let sdl_context = sdl2::init().unwrap();
@@ -46,19 +46,17 @@ fn main() {
         async_group.submit(libusb::Transfer::bulk(&gf.handle, 0x81, buf, timeout)).unwrap();
     }
 
-    let mut data: VecDeque<u8> = VecDeque::new();
-
     gf.start_receive(timeout).unwrap();
-    let mut file = File::create("log.bin").unwrap();
-    let mut sync = SyncState::None;
+    let mut fb = FrameBuilder::new();
+    let mut frame_count = 0;
+    let mut last_instant = Instant::now();
     'running: loop {
+        // Wait for a USB transfer & pass it to the frame builder
         let mut transfer = async_group.wait_any().unwrap();
-        for d in transfer.actual() {
-            data.push_back(*d);
-        }
-        //file.write_all(transfer.actual()).unwrap();
+        fb.handle_data(transfer.actual());
         async_group.submit(transfer).unwrap();
 
+        // Handle SDL events
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit {..} |
@@ -68,41 +66,14 @@ fn main() {
             };
         }
 
-        while sync != SyncState::FrameStart {
-            if let Some(a) = data.pop_front() {
-                use SyncState::*;
-                sync = match sync {
-                    None => match a {
-                        0x01 => VSyncLSB,
-                        _ => None,
-                    },
-                    VSyncLSB => match a {
-                        0x80 => VSyncMSB,
-                        _ => None,
-                    },
-                    VSyncMSB => match a {
-                        0x01 => VSyncLSB,
-                        _ => {
-                            data.push_front(a);
-                            FrameStart
-                        },
-                    },
-                    FrameStart => break
-                }
-            } else {
-                break;
-            }
-        }
-
-        if sync == SyncState::FrameStart && data.len() > (WIDTH*HEIGHT*2) {
-            let mut drain = data.drain(0..WIDTH*HEIGHT*2);
+        // Display a frame if there's one ready
+        if let Some(f) = fb.get_frame() {
             texture.with_lock(None, |buffer: &mut [u8], pitch: usize| {
                 for y in 0..HEIGHT {
                     for x in 0..WIDTH {
-                        let v1 = drain.next().unwrap() as u16;
-                        let v2 = drain.next().unwrap() as u16;
-                        let val: u16 = v1 | (v2 << 8); 
-                        let val = ((val - 30000)) as u8;
+                        let input_offset = y*WIDTH+x;
+                        let val = f[input_offset];
+                        let val = min((val - 31000) / 8, 255) as u8;
                         let offset = y*pitch + x*3;
                         buffer[offset] = val;
                         buffer[offset+1] = val;
@@ -112,19 +83,18 @@ fn main() {
             }).unwrap();
             canvas.copy(&texture, None, None).unwrap();
             canvas.present();
-            sync = SyncState::None;
+            frame_count += 1;
+        }
+
+        // Print FPS
+        if last_instant.elapsed().as_secs() >= 2 {
+            println!("fps: {}", frame_count as f32 / 2.0);
+            last_instant = Instant::now();
+            frame_count = 0;
         }
     }
 }
 
 fn allocate_buffers(count: usize) -> Vec<[u8; GREATFET_TRANSFER_BUFFER_SIZE]> {
     (0..count).map(|_| [0u8; GREATFET_TRANSFER_BUFFER_SIZE]).collect()
-}
-
-#[derive(PartialEq)]
-enum SyncState {
-    None,
-    VSyncLSB,
-    VSyncMSB,
-    FrameStart,
 }
