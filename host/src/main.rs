@@ -50,6 +50,10 @@ fn main() {
     let mut fb = FrameBuilder::new();
     let mut frame_count = 0;
     let mut last_instant = Instant::now();
+
+    let mut base = 31000;
+    let mut gain = 10f32;
+    let mut lut = build_lut(base, gain);
     'running: loop {
         // Wait for a USB transfer & pass it to the frame builder
         let mut transfer = async_group.wait_any().unwrap();
@@ -65,6 +69,19 @@ fn main() {
                     break 'running,
                 _ => (),
             };
+
+            let adj = match event {
+                Event::KeyDown { keycode: Some(Keycode::W), ..} => Some((-50, 0f32)),
+                Event::KeyDown { keycode: Some(Keycode::S), ..} => Some((50, 0f32)),
+                Event::KeyDown { keycode: Some(Keycode::A), ..} => Some((0, -0.5f32)),
+                Event::KeyDown { keycode: Some(Keycode::D), ..} => Some((0, 0.5f32)),
+                _ => None,
+            };
+            if let Some(adj) = adj {
+                base = (base as i32 + adj.0) as u16;
+                gain += adj.1;
+                lut = build_lut(base, gain);
+            }
         }
 
         // Display a frame if there's one ready
@@ -74,11 +91,11 @@ fn main() {
                     for x in 0..WIDTH {
                         let input_offset = y*WIDTH+x;
                         let val = f[input_offset];
-                        let val = min((val - 31000) / 8, 255) as u8;
+                        let val = lut[val as usize];
                         let offset = y*pitch + x*3;
-                        buffer[offset] = val;
-                        buffer[offset+1] = val;
-                        buffer[offset+2] = val;
+                        buffer[offset] = val.0;
+                        buffer[offset+1] = val.1;
+                        buffer[offset+2] = val.2;
                     }
                 }
             }).unwrap();
@@ -98,4 +115,18 @@ fn main() {
 
 fn allocate_buffers(count: usize) -> Vec<[u8; GREATFET_TRANSFER_BUFFER_SIZE]> {
     (0..count).map(|_| [0u8; GREATFET_TRANSFER_BUFFER_SIZE]).collect()
+}
+
+fn build_lut(base: u16, gain: f32) -> Vec<(u8, u8, u8)> {
+    let lut_size = 65536;
+    let mut lut: Vec<(u8, u8, u8)> = Vec::with_capacity(lut_size);
+    for i in 0..lut_size {
+        let val = i.saturating_sub(base as usize) as f32 * gain / 256f32;
+        let val = match val {
+            val if val <= 255f32 => val as u8,
+            _ => 255u8
+        };
+        lut.push((val, val, val));
+    }
+    lut
 }
