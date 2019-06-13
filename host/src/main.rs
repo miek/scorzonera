@@ -5,10 +5,14 @@ mod greatfet;
 
 use frame_builder::FrameBuilder;
 use greatfet::{GreatFET, GREATFET_TRANSFER_BUFFER_SIZE, GREATFET_TRANSFER_POOL_SIZE};
+use scarlet::color::RGBColor;
+use scarlet::colormap::{ColorMap, ListedColorMap};
 use sdl2::pixels::PixelFormatEnum;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use std::cmp::min;
+use std::io::prelude::*;
+use std::fs::File;
 use std::time::{Duration, Instant};
 
 const WIDTH: usize = 327;
@@ -53,20 +57,35 @@ fn main() {
 
     let mut base = 31000;
     let mut gain = 10f32;
-    let mut lut = build_lut(base, gain);
+    let mut colormaps = [
+        no_op_colormap,
+        ListedColorMap::viridis,
+        ListedColorMap::magma,
+        ListedColorMap::inferno,
+        ListedColorMap::plasma,
+    ].iter().cycle();
+    let mut colormap: ListedColorMap = colormaps.next().unwrap()();
+    let mut lut = build_lut(base, gain, &colormap);
+    let mut file = File::create("log.bin").unwrap();
     'running: loop {
         // Wait for a USB transfer & pass it to the frame builder
         let mut transfer = async_group.wait_any().unwrap();
         fb.handle_data(transfer.actual());
+        file.write_all(transfer.actual()).unwrap();
         async_group.submit(transfer).unwrap();
 
         // Handle SDL events
         for event in event_pump.poll_iter() {
+            let mut rebuild_lut = false;
             match event {
                 Event::Quit {..} |
                 Event::KeyDown { keycode: Some(Keycode::Escape), .. } |
                 Event::KeyDown { keycode: Some(Keycode::Q), .. } =>
                     break 'running,
+                Event::KeyDown { keycode: Some(Keycode::Space), .. } => {
+                    colormap = colormaps.next().unwrap()();
+                    rebuild_lut = true;
+                },
                 _ => (),
             };
 
@@ -80,7 +99,11 @@ fn main() {
             if let Some(adj) = adj {
                 base = (base as i32 + adj.0) as u16;
                 gain += adj.1;
-                lut = build_lut(base, gain);
+                rebuild_lut = true
+            }
+
+            if rebuild_lut {
+                lut = build_lut(base, gain, &colormap);
             }
         }
 
@@ -117,16 +140,17 @@ fn allocate_buffers(count: usize) -> Vec<[u8; GREATFET_TRANSFER_BUFFER_SIZE]> {
     (0..count).map(|_| [0u8; GREATFET_TRANSFER_BUFFER_SIZE]).collect()
 }
 
-fn build_lut(base: u16, gain: f32) -> Vec<(u8, u8, u8)> {
+fn build_lut(base: u16, gain: f32, colormap: &ListedColorMap) -> Vec<(u8, u8, u8)> {
     let lut_size = 65536;
     let mut lut: Vec<(u8, u8, u8)> = Vec::with_capacity(lut_size);
     for i in 0..lut_size {
-        let val = i.saturating_sub(base as usize) as f32 * gain / 256f32;
-        let val = match val {
-            val if val <= 255f32 => val as u8,
-            _ => 255u8
-        };
-        lut.push((val, val, val));
+        let val = i.saturating_sub(base as usize) as f64 * gain as f64 / 65536f64;
+        let mapped: RGBColor = colormap.transform_single(val);
+        lut.push(mapped.int_rgb_tup());
     }
     lut
+}
+
+fn no_op_colormap() -> ListedColorMap {
+    ListedColorMap{ vals: vec![[0f64,0f64,0f64],[1f64,1f64,1f64]] }
 }
