@@ -1,5 +1,3 @@
-extern crate sdl2;
-
 mod frame_builder;
 mod greatfet;
 
@@ -10,7 +8,7 @@ use scarlet::colormap::{ColorMap, ListedColorMap};
 use sdl2::pixels::PixelFormatEnum;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use std::cmp::min;
+
 use std::io::prelude::*;
 use std::fs::File;
 use std::time::{Duration, Instant};

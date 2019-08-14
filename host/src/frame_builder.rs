@@ -1,6 +1,6 @@
 extern crate byteorder;
 
-use byteorder::{NativeEndian, WriteBytesExt};
+
 use std::collections::VecDeque;
 
 const WIDTH: usize = 327;
