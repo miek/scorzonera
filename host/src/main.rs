@@ -3,8 +3,7 @@ mod greatfet;
 
 use frame_builder::FrameBuilder;
 use greatfet::{GreatFET, GREATFET_TRANSFER_BUFFER_SIZE, GREATFET_TRANSFER_POOL_SIZE};
-use scarlet::color::RGBColor;
-use scarlet::colormap::{ColorMap, ListedColorMap};
+use palette::{LinSrgb, Hsv, Gradient};
 use sdl2::pixels::PixelFormatEnum;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -55,14 +54,14 @@ fn main() {
 
     let mut base = 31000;
     let mut gain = 10f32;
-    let mut colormaps = [
-        no_op_colormap,
-        ListedColorMap::viridis,
-        ListedColorMap::magma,
-        ListedColorMap::inferno,
-        ListedColorMap::plasma,
-    ].iter().cycle();
-    let mut colormap: ListedColorMap = colormaps.next().unwrap()();
+    let gradients = [
+        Gradient::new(vec![
+            Hsv::from(LinSrgb::new(1.0, 0.1, 0.1)),
+            Hsv::from(LinSrgb::new(0.1, 1.0, 1.0))
+        ]),
+    ];
+    let mut colormaps = gradients.iter().cycle();
+    let mut colormap = colormaps.next().unwrap();
     let mut lut = build_lut(base, gain, &colormap);
     let mut file = File::create("log.bin").unwrap();
     'running: loop {
@@ -81,7 +80,7 @@ fn main() {
                 Event::KeyDown { keycode: Some(Keycode::Q), .. } =>
                     break 'running,
                 Event::KeyDown { keycode: Some(Keycode::Space), .. } => {
-                    colormap = colormaps.next().unwrap()();
+                    colormap = colormaps.next().unwrap();
                     rebuild_lut = true;
                 },
                 _ => (),
@@ -138,17 +137,22 @@ fn allocate_buffers(count: usize) -> Vec<[u8; GREATFET_TRANSFER_BUFFER_SIZE]> {
     (0..count).map(|_| [0u8; GREATFET_TRANSFER_BUFFER_SIZE]).collect()
 }
 
-fn build_lut(base: u16, gain: f32, colormap: &ListedColorMap) -> Vec<(u8, u8, u8)> {
+fn build_lut(base: u16, gain: f32, colormap: &Gradient<Hsv>) -> Vec<(u8, u8, u8)> {
     let lut_size = 65536;
     let mut lut: Vec<(u8, u8, u8)> = Vec::with_capacity(lut_size);
     for i in 0..lut_size {
-        let val = i.saturating_sub(base as usize) as f64 * gain as f64 / 65536f64;
-        let mapped: RGBColor = colormap.transform_single(val);
-        lut.push(mapped.int_rgb_tup());
+        let val = i.saturating_sub(base as usize) as f32 * gain as f32 / 65536f32;
+        let mapped = colormap.get(val);
+        let rgb = LinSrgb::from(mapped);
+        lut.push((
+            255 - (rgb.red * 255f32) as u8,
+            255 - (rgb.green * 255f32) as u8,
+            255 - (rgb.blue * 255f32) as u8,
+        ));
     }
     lut
 }
 
-fn no_op_colormap() -> ListedColorMap {
-    ListedColorMap{ vals: vec![[0f64,0f64,0f64],[1f64,1f64,1f64]] }
-}
+//fn no_op_colormap() -> ListedColorMap {
+//    ListedColorMap{ vals: vec![[0f64,0f64,0f64],[1f64,1f64,1f64]] }
+//}

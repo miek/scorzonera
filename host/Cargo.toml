@@ -7,5 +7,5 @@ edition = "2018"
 [dependencies]
 byteorder = "*"
 libusb = { git = "https://github.com/kevinmehall/libusb-rs/", branch = "async2" }
-scarlet = "1.0"
+palette = "*"
 sdl2 = "*"
