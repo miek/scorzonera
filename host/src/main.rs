@@ -4,6 +4,7 @@ mod greatfet;
 use frame_builder::FrameBuilder;
 use greatfet::{GreatFET, GREATFET_TRANSFER_BUFFER_SIZE, GREATFET_TRANSFER_POOL_SIZE};
 use palette::{LinSrgb, Hsv, Gradient};
+use scarlet::colormap::ListedColorMap;
 use sdl2::pixels::PixelFormatEnum;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -56,9 +57,12 @@ fn main() {
     let mut gain = 10f32;
     let gradients = [
         Gradient::new(vec![
-            Hsv::from(LinSrgb::new(1.0, 0.1, 0.1)),
-            Hsv::from(LinSrgb::new(0.1, 1.0, 1.0))
+            // black
+            Hsv::from(LinSrgb::new(0.0, 0.0, 0.0)),
+            // to white
+            Hsv::from(LinSrgb::new(1.0, 1.0, 1.0))
         ]),
+        convert_listedcolormap(&ListedColorMap::inferno()),
     ];
     let mut colormaps = gradients.iter().cycle();
     let mut colormap = colormaps.next().unwrap();
@@ -145,14 +149,24 @@ fn build_lut(base: u16, gain: f32, colormap: &Gradient<Hsv>) -> Vec<(u8, u8, u8)
         let mapped = colormap.get(val);
         let rgb = LinSrgb::from(mapped);
         lut.push((
-            255 - (rgb.red * 255f32) as u8,
-            255 - (rgb.green * 255f32) as u8,
-            255 - (rgb.blue * 255f32) as u8,
+            (rgb.red * 255f32) as u8,
+            (rgb.green * 255f32) as u8,
+            (rgb.blue * 255f32) as u8,
         ));
     }
     lut
 }
 
-//fn no_op_colormap() -> ListedColorMap {
-//    ListedColorMap{ vals: vec![[0f64,0f64,0f64],[1f64,1f64,1f64]] }
-//}
+fn convert_listedcolormap(cm: &ListedColorMap) -> Gradient<Hsv> {
+    let vals: Vec<_> = cm.vals.iter().map(
+        |v| Hsv::from(
+            LinSrgb::new(
+                v[0] as f32,
+                v[1] as f32,
+                v[2] as f32
+            )
+        )
+    ).collect();
+    Gradient::new(vals)
+}
+

@@ -8,4 +8,5 @@ edition = "2018"
 byteorder = "*"
 libusb = { git = "https://github.com/kevinmehall/libusb-rs/", branch = "async2" }
 palette = "*"
+scarlet = "*"
 sdl2 = "*"
