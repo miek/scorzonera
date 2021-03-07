@@ -48,7 +48,7 @@ fn main() {
         async_group.submit(libusb::Transfer::bulk(&gf.handle, 0x81, buf, timeout)).unwrap();
     }
 
-    gf.start_receive(timeout).unwrap();
+//    gf.start_receive(timeout).unwrap();
     let mut fb = FrameBuilder::new();
     let mut frame_count = 0;
     let mut last_instant = Instant::now();

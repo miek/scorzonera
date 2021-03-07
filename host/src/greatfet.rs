@@ -5,8 +5,8 @@ use byteorder::{NativeEndian, WriteBytesExt};
 use libusb::{Direction, RequestType, Recipient};
 use std::time::Duration;
 
-const GREATFET_VID: u16 = 0x1d50;
-const GREATFET_PID: u16 = 0x60e6;
+const GREATFET_VID: u16 = 0x16d0;
+const GREATFET_PID: u16 = 0x0f3b;
 const GREATFET_USB_INTERFACE: u16 = 0;
 
 pub const GREATFET_TRANSFER_POOL_SIZE: usize = 32;
