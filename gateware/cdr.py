@@ -2,7 +2,6 @@ from nmigen import *
 from nmigen.back.pysim import Simulator
 from nmigen.build import *
 from nmigen.cli import main
-from nmigen.hdl.ast import Past, Rose, Fell
 import numpy as np
 import unittest
 
@@ -24,22 +23,26 @@ class CDR(Elaboratable):
         self.data = Signal(2)
         self.data_valid = Signal(2)
         self.initial_lock = Signal()
-        self._selected_domain = Signal(4)
+        self._selected_domain = Signal.like(self.input)
 
     def elaborate(self, platform: Platform) -> Module:
         m = Module()
 
-        rising  = Signal(4)
-        falling = Signal(4)
+        prev_input = Signal.like(self.input)
 
-        domain_sel = Signal(4)
-        selected_domain = Signal(4)
+        rising  = Signal.like(self.input)
+        falling = Signal.like(self.input)
+
+        domain_sel = Signal.like(self.input)
+        selected_domain = Signal.like(self.input)
         m.d.comb += self._selected_domain.eq(selected_domain)
 
         m.d.sync += [
+            prev_input.eq(self.input),
+
             # Find rising/falling edges for each domain
-            rising .eq(Rose(self.input, domain="video")),
-            falling.eq(Fell(self.input, domain="video")),
+            rising .eq((self.input ^ prev_input) & self.input),
+            falling.eq((self.input & prev_input) & ~self.input),
 
             # Edge first seen on 2, sample on 0
             domain_sel[0].eq((rising == 0b0011) | (falling == 0b0011)),
@@ -55,8 +58,8 @@ class CDR(Elaboratable):
         ]
 
         m.d.comb += [
-            self.data[0].eq((Past(self.input, domain="video") & selected_domain) != 0),
-            self.data[1].eq((Past(self.input, domain="video")[0] & selected_domain[3]) | (Past(self.input, domain="video")[3] & selected_domain[0])),
+            self.data[0].eq((prev_input & selected_domain) != 0),
+            self.data[1].eq((prev_input[0] & selected_domain[3]) | (prev_input[3] & selected_domain[0])),
         ]
 
         with m.If(domain_sel != 0):
