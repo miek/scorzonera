@@ -2,6 +2,7 @@ from nmigen import *
 from nmigen.sim import Simulator
 import unittest
 
+# [Table 2, Page 15; TAXIchip datasheet]
 taxi_commands = [
     "JK",
     "II",
@@ -21,6 +22,7 @@ taxi_commands = [
     "QQ",
 ]
 
+# [Table 2, Page 15; TAXIchip datasheet]
 symbols_4b5b_command = {
     'H': 0b00100,
     'I': 0b11111,
@@ -33,6 +35,7 @@ symbols_4b5b_command = {
     'T': 0b01101,
 }
 
+# 4b5b encoding map [Table 1, Page 14; TAXIchip datasheet]
 symbols_4b5b_data = [
     0b11110,
     0b01001,
@@ -69,9 +72,6 @@ class DecodeTaxiCommand(Elaboratable):
                     m.d.comb += self.output.eq(data)
                     m.d.comb += self.valid.eq(1)
 
-            with m.Default():
-                m.d.comb += self.valid.eq(0)
-
         return m
 
 
@@ -89,9 +89,6 @@ class Decode4B5BData(Elaboratable):
                 with m.Case(symbol):
                     m.d.comb += self.output.eq(data),
                     m.d.comb += self.valid.eq(1)
-
-            with m.Default():
-                m.d.comb += self.valid.eq(0)
 
         return m
 
@@ -129,16 +126,16 @@ class TaxiDecoder(Elaboratable):
         m.d.sync += self.cstrb.eq(command_valid)
 
         # Data
-        data_MSB = Decode4B5BData()
-        m.submodules.data_MSB = data_MSB
+        data_MSn = Decode4B5BData()
+        m.submodules.data_MSn = data_MSn
 
-        data_LSB = Decode4B5BData()
-        m.submodules.data_LSB = data_LSB
+        data_LSn = Decode4B5BData()
+        m.submodules.data_LSn = data_LSn
 
-        data_valid = self.symbol_valid & data_MSB.valid & data_LSB.valid
+        data_valid = self.symbol_valid & data_MSn.valid & data_LSn.valid
 
-        m.d.comb += Cat(data_LSB.input, data_MSB.input).eq(self.symbol)
-        m.d.sync += self.data.eq(Cat(data_LSB.output, data_MSB.output))
+        m.d.comb += Cat(data_LSn.input, data_MSn.input).eq(self.symbol)
+        m.d.sync += self.data.eq(Cat(data_LSn.output, data_MSn.output))
         m.d.sync += self.dstrb.eq(data_valid)
 
         m.d.sync += self.violation.eq(self.symbol_valid & ~(data_valid | command_valid))
@@ -178,8 +175,8 @@ class TestTaxi(unittest.TestCase):
             self.assertEqual(len(data_seen), 256)
 
         sim.add_sync_process(process)
-        with sim.write_vcd("taxi-decode.vcd", "taxi-decode.gtkw", traces=[]):
-            sim.run()
+        #with sim.write_vcd("taxi-decode.vcd", "taxi-decode.gtkw", traces=[]):
+        sim.run()
 
 
 if __name__ == "__main__":
