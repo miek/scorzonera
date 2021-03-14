@@ -1,5 +1,5 @@
 from nmigen import *
-from nmigen.back.pysim import Simulator
+from nmigen.sim import Simulator
 import unittest
 
 taxi_commands = [

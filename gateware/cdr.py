@@ -1,5 +1,5 @@
 from nmigen import *
-from nmigen.back.pysim import Simulator
+from nmigen.sim import Simulator
 from nmigen.build import *
 from nmigen.cli import main
 import numpy as np
