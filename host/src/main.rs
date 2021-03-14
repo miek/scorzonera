@@ -13,8 +13,8 @@ use std::io::prelude::*;
 use std::fs::File;
 use std::time::{Duration, Instant};
 
-const WIDTH: usize = 327;
-const HEIGHT: usize = 240;
+use frame_builder::WIDTH as WIDTH;
+use frame_builder::HEIGHT as HEIGHT;
 
 fn main() {
     let sdl_context = sdl2::init().unwrap();
@@ -53,8 +53,8 @@ fn main() {
     let mut frame_count = 0;
     let mut last_instant = Instant::now();
 
-    let mut base = 31000;
-    let mut gain = 10f32;
+    let mut base = 32300;
+    let mut gain = 30f32;
     let gradients = [
         Gradient::new(vec![
             // black
@@ -97,8 +97,8 @@ fn main() {
             let adj = match event {
                 Event::KeyDown { keycode: Some(Keycode::W), ..} => Some((-50, 0f32)),
                 Event::KeyDown { keycode: Some(Keycode::S), ..} => Some((50, 0f32)),
-                Event::KeyDown { keycode: Some(Keycode::A), ..} => Some((0, -0.5f32)),
-                Event::KeyDown { keycode: Some(Keycode::D), ..} => Some((0, 0.5f32)),
+                Event::KeyDown { keycode: Some(Keycode::A), ..} => Some((0, -0.6f32)),
+                Event::KeyDown { keycode: Some(Keycode::D), ..} => Some((0, 0.6f32)),
                 _ => None,
             };
             if let Some(adj) = adj {
