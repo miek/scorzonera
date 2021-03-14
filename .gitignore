@@ -1,3 +1,5 @@
+__pycache__/
+
 # kicad backup files
 *.000
 *.bak
