@@ -68,6 +68,7 @@ fn main() {
     let mut colormap = colormaps.next().unwrap();
     let mut lut = build_lut(base, gain, &colormap);
     let mut file = File::create("log.bin").unwrap();
+    let mut pause = false;
     'running: loop {
         // Wait for a USB transfer & pass it to the frame builder
         let mut transfer = async_group.wait_any().unwrap();
@@ -86,6 +87,9 @@ fn main() {
                 Event::KeyDown { keycode: Some(Keycode::Space), .. } => {
                     colormap = colormaps.next().unwrap();
                     rebuild_lut = true;
+                },
+                Event::KeyDown { keycode: Some(Keycode::P), .. } => {
+                    pause = !pause;
                 },
                 _ => (),
             };
@@ -123,7 +127,9 @@ fn main() {
                     }
                 }
             }).unwrap();
-            canvas.copy(&texture, None, None).unwrap();
+            if (!pause) {
+                canvas.copy(&texture, None, None).unwrap();
+            }
             canvas.present();
             frame_count += 1;
         }
