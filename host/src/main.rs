@@ -1,8 +1,6 @@
 mod frame_builder;
-mod greatfet;
 
 use frame_builder::FrameBuilder;
-use greatfet::{GreatFET, GREATFET_TRANSFER_BUFFER_SIZE, GREATFET_TRANSFER_POOL_SIZE};
 use palette::{LinSrgb, Hsv, Gradient};
 use scarlet::colormap::ListedColorMap;
 use sdl2::pixels::PixelFormatEnum;
@@ -15,6 +13,11 @@ use std::time::{Duration, Instant};
 
 use frame_builder::WIDTH as WIDTH;
 use frame_builder::HEIGHT as HEIGHT;
+
+const VID: u16 = 0x16d0;
+const PID: u16 = 0x0f3b;
+const TRANSFER_POOL_SIZE: usize = 32;
+const TRANSFER_BUFFER_SIZE: usize = 1024*10;
 
 fn main() {
     let sdl_context = sdl2::init().unwrap();
@@ -33,22 +36,26 @@ fn main() {
 
     let context = libusb::Context::new().unwrap();
 
-    let greatfets: Vec<_> = context.devices().unwrap().iter().filter(greatfet::filter).collect();
-    if greatfets.len() == 0 {
-        println!("GreatFET not found");
+    let devices: Vec<_> = context.devices().unwrap().iter().filter(
+        |dev| {
+            let desc = dev.device_descriptor().unwrap();
+            desc.vendor_id() == VID && desc.product_id() == PID
+        }
+    ).collect();
+    if devices.len() == 0 {
+        println!("Device not found");
         return;
     }
-    let gf = GreatFET::new(&greatfets[0]).expect("Error opening GreatFET");
+    let handle = devices[0].open().unwrap();
 
-    let mut buffers = allocate_buffers(GREATFET_TRANSFER_POOL_SIZE);
+    let mut buffers = allocate_buffers(TRANSFER_POOL_SIZE);
     let mut async_group = libusb::AsyncGroup::new(&context);
     let timeout = Duration::from_secs(1);
 
     for buf in &mut buffers {
-        async_group.submit(libusb::Transfer::bulk(&gf.handle, 0x81, buf, timeout)).unwrap();
+        async_group.submit(libusb::Transfer::bulk(&handle, 0x81, buf, timeout)).unwrap();
     }
 
-//    gf.start_receive(timeout).unwrap();
     let mut fb = FrameBuilder::new();
     let mut frame_count = 0;
     let mut last_instant = Instant::now();
@@ -127,7 +134,7 @@ fn main() {
                     }
                 }
             }).unwrap();
-            if (!pause) {
+            if !pause {
                 canvas.copy(&texture, None, None).unwrap();
             }
             canvas.present();
@@ -143,8 +150,8 @@ fn main() {
     }
 }
 
-fn allocate_buffers(count: usize) -> Vec<[u8; GREATFET_TRANSFER_BUFFER_SIZE]> {
-    (0..count).map(|_| [0u8; GREATFET_TRANSFER_BUFFER_SIZE]).collect()
+fn allocate_buffers(count: usize) -> Vec<[u8; TRANSFER_BUFFER_SIZE]> {
+    (0..count).map(|_| [0u8; TRANSFER_BUFFER_SIZE]).collect()
 }
 
 fn build_lut(base: u16, gain: f32, colormap: &Gradient<Hsv>) -> Vec<(u8, u8, u8)> {
