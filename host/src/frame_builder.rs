@@ -3,7 +3,7 @@ extern crate byteorder;
 use std::io::Cursor;
 use byteorder::{LittleEndian, ReadBytesExt};
 
-pub const WIDTH: usize = 328;
+pub const WIDTH: usize = 327;
 pub const HEIGHT: usize = 245;
 const FRAME_SIZE_PIXELS: usize = WIDTH*HEIGHT;
 

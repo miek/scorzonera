@@ -55,6 +55,10 @@ symbols_4b5b_data = [
     0b11101,
 ]
 
+def get_command_pattern(command):
+    return symbols_4b5b_command[command[1]] | (symbols_4b5b_command[command[0]] << 5)
+
+SYNC = get_command_pattern(taxi_commands[0])
 
 class DecodeTaxiCommand(Elaboratable):
     def __init__(self):
@@ -67,7 +71,7 @@ class DecodeTaxiCommand(Elaboratable):
 
         with m.Switch(self.input):
             for data, command in enumerate(taxi_commands):
-                pattern = symbols_4b5b_command[command[1]] | (symbols_4b5b_command[command[0]] << 5)
+                pattern = get_command_pattern(command)
                 with m.Case(pattern):
                     m.d.comb += self.output.eq(data)
                     m.d.comb += self.valid.eq(1)

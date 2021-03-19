@@ -24,6 +24,7 @@ from luna.gateware.usb.devices.ila   import USBIntegratedLogicAnalyzerFrontend
 
 
 from cdr import CDR, SymbolSynchroniser
+import taxi
 from taxi import TaxiDecoder
 
 VENDOR_ID  = 0x16d0
@@ -227,7 +228,7 @@ class USBInSpeedTestDevice(Elaboratable):
         m.d.comb += cdr.input.eq(data_4x)
         m.submodules += DomainRenamer("video")(cdr)
 
-        symbol_sync = SymbolSynchroniser(sync_symbol=Const(0b1100010001, 10))
+        symbol_sync = SymbolSynchroniser(sync_symbol=Const(taxi.SYNC, 10))
         symbol_sync = DomainRenamer("video")(symbol_sync)
         m.submodules += symbol_sync
 
