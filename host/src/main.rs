@@ -17,7 +17,7 @@ use frame_builder::HEIGHT as HEIGHT;
 const VID: u16 = 0x16d0;
 const PID: u16 = 0x0f3b;
 const TRANSFER_POOL_SIZE: usize = 32;
-const TRANSFER_BUFFER_SIZE: usize = 1024*10;
+const TRANSFER_BUFFER_SIZE: usize = 1024*160;
 
 fn main() {
     let sdl_context = sdl2::init().unwrap();
@@ -34,9 +34,9 @@ fn main() {
     canvas.present();
     let mut event_pump = sdl_context.event_pump().unwrap();
 
-    let context = libusb::Context::new().unwrap();
+    let usb_context = libusb::Context::new().unwrap();
 
-    let devices: Vec<_> = context.devices().unwrap().iter().filter(
+    let devices: Vec<_> = usb_context.devices().unwrap().iter().filter(
         |dev| {
             let desc = dev.device_descriptor().unwrap();
             desc.vendor_id() == VID && desc.product_id() == PID
@@ -49,7 +49,7 @@ fn main() {
     let handle = devices[0].open().unwrap();
 
     let mut buffers = allocate_buffers(TRANSFER_POOL_SIZE);
-    let mut async_group = libusb::AsyncGroup::new(&context);
+    let mut async_group = libusb::AsyncGroup::new(&usb_context);
     let timeout = Duration::from_secs(1);
 
     for buf in &mut buffers {
@@ -77,12 +77,6 @@ fn main() {
     let mut file = File::create("log.bin").unwrap();
     let mut pause = false;
     'running: loop {
-        // Wait for a USB transfer & pass it to the frame builder
-        let mut transfer = async_group.wait_any().unwrap();
-        fb.handle_data(transfer.actual());
-        file.write_all(transfer.actual()).unwrap();
-        async_group.submit(transfer).unwrap();
-
         // Handle SDL events
         for event in event_pump.poll_iter() {
             let mut rebuild_lut = false;
@@ -119,8 +113,11 @@ fn main() {
             }
         }
 
+        // Wait for a USB transfer & pass it to the frame builder
+        let mut transfer = async_group.wait_any().unwrap();
+        file.write_all(&transfer.actual()).unwrap();
         // Display a frame if there's one ready
-        if let Some(f) = fb.get_frame() {
+        if let Some(f) = fb.get_frame(transfer.actual()) {
             texture.with_lock(None, |buffer: &mut [u8], pitch: usize| {
                 for y in 0..HEIGHT {
                     for x in 0..WIDTH {
@@ -140,6 +137,7 @@ fn main() {
             canvas.present();
             frame_count += 1;
         }
+        async_group.submit(transfer).unwrap();
 
         // Print FPS
         if last_instant.elapsed().as_secs() >= 2 {

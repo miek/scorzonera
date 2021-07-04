@@ -262,21 +262,12 @@ class USBInSpeedTestDevice(Elaboratable):
         ]
 
         # Create a FIFO to bridge from the video -> usb domain
-        fifo = AsyncFIFO(width=16, depth=256, r_domain="usb", w_domain="video")
+        fifo = AsyncFIFO(width=17, depth=256, r_domain="usb", w_domain="video")
         m.submodules += fifo
 
-        m.d.comb += [
-            fifo.r_en                .eq(stream_ep.stream.ready),
-            stream_ep.stream.valid   .eq(fifo.r_rdy),
-            stream_ep.stream.payload .eq(fifo.r_data),
-            stream_ep.stream.last    .eq(0),
-        ]
-
-        # Pull out the sync events from the command byte & define some handy macros
+        # Pull out the sync events from the command byte
         hsync, vsync_odd, vsync_even, _ = taxi_decoder.command
-        hsync = taxi_decoder.cstrb & hsync
         vsync = taxi_decoder.cstrb & (vsync_odd | vsync_even)
-        sync = hsync | vsync
 
         # The camera sends 16bit samples in two 8bit chunks, LSB first
         # We keep track of the byte we're on and the previous byte,
@@ -289,8 +280,8 @@ class USBInSpeedTestDevice(Elaboratable):
                 odd_byte.eq(~odd_byte),
             ]
 
-        # Reset byte alignment state on any sync
-        with m.If(sync):
+        # Reset byte alignment state on vsync
+        with m.If(vsync):
             m.d.video += odd_byte.eq(0)
 
         # If there's a 16bit sample ready, push it to the FIFO
@@ -299,13 +290,19 @@ class USBInSpeedTestDevice(Elaboratable):
                 fifo.w_en.eq(1),
                 fifo.w_data.eq(Cat(prev_byte, taxi_decoder.data)),
             ]
-        # Or if there's a sync event, push that
-        with m.Elif(sync):
-            sym = Mux(vsync, 0x0000, 0x0001)
+        # Or if there's a vsync event, push that
+        with m.Elif(vsync):
             m.d.comb += [
                 fifo.w_en.eq(1),
-                fifo.w_data.eq(sym),
+                fifo.w_data.eq(1<<16),
             ]
+
+        m.d.comb += [
+            fifo.r_en                .eq(stream_ep.stream.ready),
+            stream_ep.stream.valid   .eq(fifo.r_rdy),
+            stream_ep.stream.payload .eq(fifo.r_data[:16]),
+            stream_ep.stream.last    .eq(fifo.r_data[16]),
+        ]
 
 
         # Output some debug signals to PMOD0
