@@ -91,7 +91,7 @@ class USBInSpeedTestDevice(Elaboratable):
         m.submodules.car = platform.clock_domain_generator()
 
         # Create our USB device interface...
-        ulpi = platform.request("ulpi")
+        ulpi = platform.request("host_phy")
         m.submodules.usb = usb = USBDevice(bus=ulpi)
 
         # Add our standard control endpoint to the device.
@@ -128,7 +128,7 @@ class USBInSpeedTestDevice(Elaboratable):
 
         platform.add_resources([
             Resource("rx", 0,
-                DiffPairs("4", "3", conn=("pmod", 4)),
+                DiffPairs("9", "10", conn=("pmod", 1)),
                 Attrs(IO_TYPE="LVDS"))
         ])
         rx = platform.request("rx", 0, dir="i")
@@ -194,7 +194,7 @@ class USBInSpeedTestDevice(Elaboratable):
                 p_CLKOS_DIV=4,
                 p_CLKOP_DIV=2,
                 p_CLKFB_DIV=16,
-                p_CLKI_DIV=5,
+                p_CLKI_DIV=3,
                 p_FEEDBK_PATH="CLKOP",
 
                 # Internal feedback.
@@ -303,19 +303,6 @@ class USBInSpeedTestDevice(Elaboratable):
             stream_ep.stream.payload .eq(fifo.r_data[:16]),
             stream_ep.stream.last    .eq(fifo.r_data[16]),
         ]
-
-
-        # Output some debug signals to PMOD0
-        platform.add_resources([
-            Resource("debug_io", 0,
-                Pins("1 2 3 4 7 8 9 10", conn=("pmod", 0), dir="o"),
-                Attrs(IO_TYPE="LVCMOS33")),
-        ])
-        debug_io = platform.request("debug_io")
-        m.d.comb += debug_io.eq(Cat(
-            vsync, hsync, taxi_decoder.violation,
-            taxi_decoder.dstrb, cdr._selected_domain,
-        ))
 
         return m
 
