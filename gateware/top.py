@@ -22,7 +22,7 @@ from luna.gateware.utils.cdc         import synchronize
 from luna.gateware.usb.devices.ila   import USBIntegratedLogicAnalyzer
 from luna.gateware.usb.devices.ila   import USBIntegratedLogicAnalyzerFrontend
 
-
+from acm import USBSerialInterface
 from cdr import CDR, SymbolSynchroniser
 import taxi
 from taxi import TaxiDecoder
@@ -73,8 +73,10 @@ class USBInSpeedTestDevice(Elaboratable):
         # ... and a description of the USB configuration we'll provide.
         with descriptors.ConfigurationDescriptor() as c:
 
+            self._serial.add_descriptors(c)
+
             with c.InterfaceDescriptor() as i:
-                i.bInterfaceNumber = 0
+                i.bInterfaceNumber = 2
 
                 with i.EndpointDescriptor() as e:
                     e.bEndpointAddress = 0x80 | BULK_ENDPOINT_NUMBER
@@ -94,9 +96,15 @@ class USBInSpeedTestDevice(Elaboratable):
         ulpi = platform.request("host_phy")
         m.submodules.usb = usb = USBDevice(bus=ulpi)
 
+        # Create & add ACM serial interface
+        self._serial = serial = USBSerialInterface()
+        serial.add_endpoints(usb)
+        m.submodules.serial = serial
+
         # Add our standard control endpoint to the device.
         descriptors = self.create_descriptors()
         control_ep = usb.add_standard_control_endpoint(descriptors)
+        serial.add_handlers(control_ep)
 
         # Add a stream endpoint to our device.
         stream_ep = USBMultibyteStreamInEndpoint(
@@ -110,6 +118,14 @@ class USBInSpeedTestDevice(Elaboratable):
         m.d.comb += [
             usb.connect          .eq(1),
             usb.full_speed_only  .eq(1 if os.getenv('LUNA_FULL_ONLY') else 0),
+
+            # Connect serial tx/rx for testing
+            # Place the streams into a loopback configuration...
+            serial.tx.payload  .eq(serial.rx.payload),
+            serial.tx.valid    .eq(serial.rx.valid),
+            serial.tx.first    .eq(serial.rx.first),
+            serial.tx.last     .eq(serial.rx.last),
+            serial.rx.ready    .eq(serial.tx.ready),
         ]
 
         # Primary clock (ECLK / 2)
