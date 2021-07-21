@@ -26,6 +26,7 @@ from acm import USBSerialInterface
 from cdr import CDR, SymbolSynchroniser
 import taxi
 from taxi import TaxiDecoder
+from uart import UARTRx
 
 VENDOR_ID  = 0x16d0
 PRODUCT_ID = 0x0f3b
@@ -119,13 +120,17 @@ class USBInSpeedTestDevice(Elaboratable):
             usb.connect          .eq(1),
             usb.full_speed_only  .eq(1 if os.getenv('LUNA_FULL_ONLY') else 0),
 
-            # Connect serial tx/rx for testing
-            # Place the streams into a loopback configuration...
-            serial.tx.payload  .eq(serial.rx.payload),
-            serial.tx.valid    .eq(serial.rx.valid),
-            serial.tx.first    .eq(serial.rx.first),
-            serial.tx.last     .eq(serial.rx.last),
-            serial.rx.ready    .eq(serial.tx.ready),
+        ]
+
+
+        platform.add_resources([
+            Resource("uart_rx", 0, Pins("7", conn=("pmod", 1))),
+        ])
+        uart_rx_pin = platform.request("uart_rx", 0, dir="i")
+        m.submodules.uart_rx = uart_rx = DomainRenamer("usb")(UARTRx())
+        m.d.comb += [
+            serial.tx.stream_eq(uart_rx.rx),
+            uart_rx.rx_pin.eq(uart_rx_pin),
         ]
 
         # Primary clock (ECLK / 2)
