@@ -35,7 +35,7 @@ BULK_ENDPOINT_NUMBER = 1
 MAX_BULK_PACKET_SIZE = 64 if os.getenv('LUNA_FULL_ONLY') else 512
 
 
-class USBInSpeedTestDevice(Elaboratable):
+class ScorzoneraDevice(Elaboratable):
     """ Simple device that sends data to the host as fast as hardware can.
 
     This is paired with the python code below to evaluate LUNA throughput.
@@ -64,8 +64,8 @@ class USBInSpeedTestDevice(Elaboratable):
             d.idVendor           = VENDOR_ID
             d.idProduct          = PRODUCT_ID
 
-            d.iManufacturer      = "GSG"
-            d.iProduct           = "Amalthea receiver"
+            d.iManufacturer      = "Mike Walters"
+            d.iProduct           = "Scorzonera"
             d.iSerialNumber      = "no serial"
 
             d.bNumConfigurations = 1
@@ -329,4 +329,4 @@ class USBInSpeedTestDevice(Elaboratable):
 
 
 if __name__ == "__main__":
-    device = top_level_cli(USBInSpeedTestDevice)
+    device = top_level_cli(ScorzoneraDevice)
