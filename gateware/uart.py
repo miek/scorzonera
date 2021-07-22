@@ -49,6 +49,9 @@ class UARTRx(Elaboratable):
         # Default to no data ready.
         m.d.sync += self.rx.valid.eq(0)
 
+        # Flush on new-line
+        m.d.comb += self.rx.last.eq(self.rx.payload == ord("\n"))
+
         with m.FSM() as fsm:
             # Waiting for first RX falling edge.
             with m.State("IDLE"):
