@@ -103,3 +103,87 @@ class UARTRx(Elaboratable):
 
 
         return m
+
+
+class UARTTx(Elaboratable):
+    """ UART transmitter module.
+
+    Attributes
+    ----------
+    tx: StreamInterface(), input stream
+        A stream carrying data to be transmitted to the remote device.
+    tx_pin: Signal(), output TX pin
+        Output signal to the UART TX pin.
+
+    Parameters
+    ----------
+    baud_rate: int
+    clock_rate: int
+    """
+
+
+    def __init__(self, baud_rate=19200, clock_rate=60e6):
+        self._baud_rate = baud_rate
+        self._clock_rate = clock_rate
+        self._bits = 8
+
+        #
+        # I/O port
+        #
+        self.tx      = StreamInterface(payload_width=self._bits)
+        self.tx_pin  = Signal()
+
+
+    def elaborate(self, platform):
+        m = Module()
+
+        # Calculate number of clock cycles for each bit.
+        bit_time      = int(self._clock_rate / self._baud_rate)
+        counter       = Signal(range(bit_time + 1))
+        tx_strobe     = (counter == bit_time)
+        m.d.sync     += counter.eq(counter + 1)
+
+        # Counter & storage for outgoing data bits
+        bits      = self._bits + 1
+        bit_count = Signal(range(bits+1))
+        data      = Signal(bits)
+
+        # Default to not reading from the stream.
+        m.d.sync += self.tx.ready.eq(0)
+
+        with m.FSM() as fsm:
+            # Waiting for data from the stream.
+            with m.State("IDLE"):
+                # Idle high.
+                self.tx_pin.eq(1)
+
+                with m.If(self.tx.valid):
+                    m.d.sync += [
+                        # Send start bit.
+                        self.tx_pin.eq(0),
+
+                        # Read a byte from the stream, adding the stop bit on the end.
+                        data.eq(Cat(self.tx.payload, 1)),
+                        self.tx.ready.eq(1),
+
+                        # and setup counters.
+                        counter.eq(0),
+                        bit_count.eq(0),
+                    ]
+                    m.next = "TX"
+
+            # Shifting out bits.
+            with m.State("TX"):
+                with m.If(tx_strobe):
+                    with m.If(bit_count == bits):
+                        m.next = "IDLE"
+                    with m.Else():
+                        m.d.sync += [
+                            data.eq(Cat(data[1:])),
+                            self.tx_pin.eq(data[0]),
+                            counter.eq(0),
+                            bit_count.eq(bit_count + 1),
+                        ]
+
+
+        return m

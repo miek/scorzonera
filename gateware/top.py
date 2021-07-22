@@ -26,7 +26,7 @@ from acm import USBSerialInterface
 from cdr import CDR, SymbolSynchroniser
 import taxi
 from taxi import TaxiDecoder
-from uart import UARTRx
+from uart import UARTRx, UARTTx
 
 VENDOR_ID  = 0x16d0
 PRODUCT_ID = 0x0f3b
@@ -125,12 +125,18 @@ class ScorzoneraDevice(Elaboratable):
 
         platform.add_resources([
             Resource("uart_rx", 0, Pins("7", conn=("pmod", 1))),
+            Resource("uart_tx", 0, Pins("8", conn=("pmod", 1))),
         ])
         uart_rx_pin = platform.request("uart_rx", 0, dir="i")
+        uart_tx_pin = platform.request("uart_tx", 0, dir="o")
         m.submodules.uart_rx = uart_rx = DomainRenamer("usb")(UARTRx())
+        m.submodules.uart_tx = uart_tx = DomainRenamer("usb")(UARTTx())
         m.d.comb += [
             serial.tx.stream_eq(uart_rx.rx),
             uart_rx.rx_pin.eq(uart_rx_pin),
+
+            uart_tx.tx.stream_eq(serial.rx),
+            uart_tx_pin.eq(uart_tx.tx_pin),
         ]
 
         # Primary clock (ECLK / 2)
