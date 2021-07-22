@@ -98,7 +98,7 @@ class ScorzoneraDevice(Elaboratable):
         m.submodules.usb = usb = USBDevice(bus=ulpi)
 
         # Create & add ACM serial interface
-        self._serial = serial = USBSerialInterface()
+        self._serial = serial = USBSerialInterface(max_packet_size=MAX_BULK_PACKET_SIZE)
         serial.add_endpoints(usb)
         m.submodules.serial = serial
 
