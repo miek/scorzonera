@@ -7,10 +7,10 @@ import time
 
 import usb1
 
-from nmigen                          import *
-from nmigen.build                    import Attrs, DiffPairs, Pins, Resource
-from nmigen.lib.cdc                  import PulseSynchronizer
-from nmigen.lib.fifo                 import AsyncFIFO
+from amaranth                        import *
+from amaranth.build                  import Attrs, DiffPairs, Pins, Resource
+from amaranth.lib.cdc                import PulseSynchronizer
+from amaranth.lib.fifo               import AsyncFIFO
 from usb_protocol.types              import USBRequestType
 from usb_protocol.emitters           import DeviceDescriptorCollection
 

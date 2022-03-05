@@ -1,5 +1,5 @@
-from nmigen import *
-from nmigen.sim import Simulator
+from amaranth import *
+from amaranth.sim import Simulator
 import unittest
 
 # [Table 2, Page 15; TAXIchip datasheet]

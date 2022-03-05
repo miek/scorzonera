@@ -1,6 +1,5 @@
-from nmigen                            import Cat, Elaboratable, Module, Signal
-
-from luna.gateware.stream                         import StreamInterface
+from amaranth import Cat, Elaboratable, Module, Signal
+from luna.gateware.stream import StreamInterface
 
 
 class UARTRx(Elaboratable):

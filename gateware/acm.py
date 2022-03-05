@@ -6,12 +6,12 @@
 
 """ Pre-made gateware that implements CDC-ACM serial. """
 
-from nmigen                            import Elaboratable, Module, Signal
+from amaranth import Elaboratable, Module, Signal
 
-from luna.gateware.stream                         import StreamInterface
-from luna.gateware.usb.usb2.device                     import USBDevice
-from luna.gateware.usb.usb2.request                    import USBRequestHandler, StallOnlyRequestHandler
-from luna.gateware.usb.usb2.endpoints.stream           import USBStreamInEndpoint, USBStreamOutEndpoint
+from luna.gateware.stream                    import StreamInterface
+from luna.gateware.usb.usb2.device           import USBDevice
+from luna.gateware.usb.usb2.request          import USBRequestHandler, StallOnlyRequestHandler
+from luna.gateware.usb.usb2.endpoints.stream import USBStreamInEndpoint, USBStreamOutEndpoint
 
 from usb_protocol.types                import USBRequestType
 from usb_protocol.emitters             import DeviceDescriptorCollection

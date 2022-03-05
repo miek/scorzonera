@@ -1,7 +1,7 @@
-from nmigen import *
-from nmigen.sim import Simulator
-from nmigen.build import *
-from nmigen.cli import main
+from amaranth import *
+from amaranth.sim import Simulator
+from amaranth.build import *
+from amaranth.cli import main
 import numpy as np
 import unittest
 
